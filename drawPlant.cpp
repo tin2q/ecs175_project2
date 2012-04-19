@@ -3,11 +3,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <glew.h>
-#include <glut.h>
+#include <gl/glew.h>
+#include <gl/glut.h>
 #include "shader_utils.h"
 #include "drawPlant.h"
-
+#ifndef M_PI
+#define M_PI           3.14159265358979323846
+#endif
 
 GLuint program;
 GLint attribute_coord2d = 0;

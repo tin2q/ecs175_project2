@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <glew.h>
-#include <glut.h>
+#include <gl/glew.h>
+#include <gl/glut.h>
 #include "shader_utils.h"
 #include "drawPlant.h"
 
