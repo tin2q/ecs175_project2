@@ -5,9 +5,9 @@
 #include <math.h>
 #include <glew.h>
 #include <glut.h>
+#include <glm/glm.hpp>
 #include "shader_utils.h"
 #include "drawPlant.h"
-
 
 GLuint program;
 GLint attribute_coord2d = 0;
@@ -141,7 +141,7 @@ void drawPlant(void) {
     5*sizeof(float),  // stride between one position and the next
     leaf_vertices+2    // pointer to first position index of a color in the C array
   );
-
+  
 
   // give the matrix a value
   glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, TurnLeft);
