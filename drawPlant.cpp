@@ -38,13 +38,28 @@ GLubyte leaf_indicies[] = {
   0, 6, 7
 };
 
+GLfloat stem_vertices[] = {
+  0.0 , 0.0,   0.5,0.9,0.3,
+  0.0 , 0.5,   0.5,0.9,0.3,
+  0.5 , 0.5,   0.5,0.9,0.3,
+  0.5 , 0.0,   0.5,0.9,0.3
+  };
+
+GLubyte stem_indicies[] = {
+  0, 1, 2, 
+  0, 2, 3, 
+};
+
 
 // Turn left by pi/6
 GLfloat TurnLeft[] = 
   {cos(M_PI/6), -sin(M_PI/6), 0.0, 
    sin(M_PI/6), cos(M_PI/6), 0.0,
    0.0,  0.0, 1.0};
-
+GLfloat TurnRight[] = 
+  {cos(-M_PI/6), -sin(-M_PI/6), 0.0, 
+   sin(-M_PI/6), cos(-M_PI/6), 0.0,
+   0.0,  0.0, 1.0};
 
 // Set up the shaders, compile and link them, get pointers to 
 // where the shader variables are in GPU memory. 
@@ -144,7 +159,6 @@ void drawPlant(void) {
     leaf_vertices+2    // pointer to first position index of a color in the C array
   );
 
-
   // give the matrix a value
   glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, TurnLeft);
 
@@ -152,6 +166,27 @@ void drawPlant(void) {
   // Send the triangle vertices to the GPU  - actually draw! 
   glDrawElements(GL_TRIANGLES, 7*3, GL_UNSIGNED_BYTE, leaf_indicies);
 
+  glVertexAttribPointer(
+    attribute_coord2d, // attribute ID
+    2,                 // number of elements per vertex, here (x,y)
+    GL_FLOAT,          // the type of each element
+    GL_FALSE,          // take our values as-is, don't normalize
+    5*sizeof(float),  // stride between one position and the next
+    stem_vertices  // pointer to first position in the C array
+  );
+  glVertexAttribPointer(
+    attribute_color, // attribute ID
+    3,                 // number of elements per vertex, here (r,g,b)
+    GL_FLOAT,          // the type of each element
+    GL_FALSE,          // take our values as-is, don't normalize
+    5*sizeof(float),  // stride between one position and the next
+    stem_vertices+2    // pointer to first position index of a color in the C array
+  );
+
+  glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, TurnLeft);
+  glDrawElements(GL_TRIANGLES, 7*3, GL_UNSIGNED_BYTE, stem_indicies);
+  //glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, TurnLeft2);
+  //glDrawElements(GL_TRIANGLES, 7*3, GL_UNSIGNED_BYTE, leaf_indicies);
   // Done with the attributes
   glDisableVertexAttribArray(attribute_coord2d);
   glDisableVertexAttribArray(attribute_color);
