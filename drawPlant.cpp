@@ -2,29 +2,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <iostream>
 #include <math.h>
 #include <glew.h>
 #include <glut.h>
 #include <glm/glm.hpp>
 #include "shader_utils.h"
 #include "drawPlant.h"
+using namespace std;
+
+
+glm::mat3 drawStem(int level, glm::mat3 m);
+glm::mat3 drawLine(glm::mat3 m);
 
 GLuint program;
 GLint attribute_coord2d = 0;
 GLint attribute_color = 1;
 GLint uniform_matrix;  // pointer to uniform variable
-glm::mat3 originalMatrix;
+glm::mat3 current(1,0,0, //0,0
+						 0,1,0, //1,0
+						 0,0,1); //2,0
 
 // every vertex is position (2 floats), followed by color (3 floats)
 GLfloat leaf_vertices[] = {
   0.0,0.0,   0.5,0.9,0.3,
-  0.25,0.19, 0.1 ,0.5,0.1,
-  0.30,0.48, 0.4,0.8,0.3,
-  0.27,0.62, 0.1,0.5,0.1,
-  0.0,1.0,   0.5,0.9,0.3,
-  -0.27,0.62,  0.1,0.5,0.3,
-  -0.30,0.48,  0.4,0.8,0.3,
-  -0.25,0.19,  0.1,0.5,0.1
+  0.025,0.019, 0.1 ,0.5,0.1,
+  0.030,0.048, 0.4,0.8,0.3,
+  0.027,0.062, 0.1,0.5,0.1,
+  0.0,0.10,   0.5,0.9,0.3,
+  -0.027,0.062,  0.1,0.5,0.3,
+  -0.030,0.048,  0.4,0.8,0.3,
+  -0.025,0.019,  0.1,0.5,0.1
   };
 
 GLubyte leaf_indicies[] = {
@@ -46,6 +54,11 @@ GLfloat stem_vertices[] = {
 GLubyte stem_indicies[] = {
   0, 1, 2,
   0, 2, 3
+};
+
+GLfloat line_vertices[] = {
+	0.0,0.3, 
+	0.5,0.5,
 };
 
 // Turn left by pi/6
@@ -155,7 +168,8 @@ void drawPlant(void) {
   
 
   // give the matrix a value
-  glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, TurnLeft);
+  glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &current[0][0]);
+  //glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, TurnLeft);
 
   // Send the triangle vertices to the GPU  - actually draw! 
   glDrawElements(GL_TRIANGLES, 7*3, GL_UNSIGNED_BYTE, leaf_indicies);
@@ -179,16 +193,50 @@ void drawPlant(void) {
     stem_vertices+2    // pointer to first position index of a color in the C array
   );
 
-  glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &originalMatrix[0][0]);
+  cout << current[0][0] << endl;
+  cout << current[1][2] << endl;
+  current = drawStem(0, current);
+  /*glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &originalMatrix[0][0]);
   glDrawElements(GL_TRIANGLES, 2*3, GL_UNSIGNED_BYTE, stem_indicies);
 
   glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, TurnLeft);
-  glDrawElements(GL_TRIANGLES, 2*3, GL_UNSIGNED_BYTE, stem_indicies);
+  glDrawElements(GL_TRIANGLES, 2*3, GL_UNSIGNED_BYTE, stem_indicies);*/
+
+  
   // Done with the attributes
   glDisableVertexAttribArray(attribute_coord2d);
   glDisableVertexAttribArray(attribute_color);
+
 }
 
+glm::mat3 drawStem(int level, glm::mat3 m){
+	drawLine(m);
+	return m;
+}
+
+glm::mat3 drawLine(glm::mat3 m){
+	glVertexAttribPointer(
+		attribute_coord2d, // attribute ID
+		2,                 // number of elements per vertex, here (x,y)
+		GL_FLOAT,          // the type of each element
+		GL_FALSE,          // take our values as-is, don't normalize
+		2*sizeof(float),  // stride between one position and the next
+		line_vertices  // pointer to first position in the C array
+	);
+	
+	//glVertexAttribPointer(
+	//	attribute_color, // attribute ID
+	//	3,                 // number of elements per vertex, here (r,g,b)
+	//	GL_FLOAT,          // the type of each element
+	//	GL_FALSE,          // take our values as-is, don't normalize
+	//	5*sizeof(float),  // stride between one position and the next
+	//	line_vertices+2    // pointer to first position index of a color in the C array
+	//);
+	glColor3f(0.4,0.8,0.1);
+	//glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &m[0][0]);
+	glDrawArrays(GL_LINES,0,2);
+	return m;
+}
 
 void free_resources()
 {
