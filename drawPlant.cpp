@@ -18,9 +18,7 @@ GLuint program;
 GLint attribute_coord2d = 0;
 GLint attribute_color = 1;
 GLint uniform_matrix;  // pointer to uniform variable
-glm::mat3 current(1,0,0, //0,0
-						 0,1,0, //1,0
-						 0,0,1); //2,0
+
 
 // every vertex is position (2 floats), followed by color (3 floats)
 GLfloat leaf_vertices[] = {
@@ -56,8 +54,8 @@ GLubyte stem_indicies[] = {
 };
 
 GLfloat line_vertices[] = {
-	0.0,0.0, 
-	0.0,0.2
+	0.0,0.0, 0.6,0.4,0.1,
+	0.0,0.2, 0.6,0.4,0.1
 };
 
 // Turn left by pi/6
@@ -214,12 +212,12 @@ void drawPlant(int level, glm::mat3 t){
   else {
     glm::mat3 temp;
     cout << "Draw stem\n";
-    drawStem(level-1, t);
+    t = drawStem(level-1, t);
     temp = t;
-    t = turnLeft(t,M_PI/10);
+    t = turnLeft(t,M_PI/8);
     drawPlant(level-1, t);
     t = temp;
-    t = turnRight(t, M_PI/10);
+    t = turnRight(t, M_PI/8);
     drawPlant(level-1, t);
   }
 }
@@ -229,7 +227,10 @@ void beginPlant(void){
   //glEnableVertexAttribArray(attribute_coord2d);
   //glEnableVertexAttribArray(attribute_color);
   cout << "Begin drawing...\n"; 
-  drawPlant(2,current);
+  glm::mat3 current(1,0,0, //0,0
+					0,1,0, //1,0
+					0,-0.9,1); //2,0
+  drawPlant(5,current);
   
   //glDisableVertexAttribArray(attribute_coord2d);
   //glDisableVertexAttribArray(attribute_color);
@@ -271,16 +272,13 @@ glm::mat3 drawStem(int level, glm::mat3 m){
                         0,1,0,
                         0,0.2,1);
 
-
   if(level == 0){
-    m = translateM * m;
     drawLine(m);
     //cout << "Draw a line\n";
-    m = translateM2 * m;
+    m = m * translateM2;
   }
   else {
     m = drawStem(level-1, m);
-    drawStem(level-1,m);
   }
 
 	return m;
@@ -288,27 +286,29 @@ glm::mat3 drawStem(int level, glm::mat3 m){
 
 glm::mat3 drawLine(glm::mat3 m){
   glEnableVertexAttribArray(attribute_coord2d);
+  glEnableVertexAttribArray(attribute_color);
 	glVertexAttribPointer(
 		attribute_coord2d, // attribute ID
 		2,                 // number of elements per vertex, here (x,y)
 		GL_FLOAT,          // the type of each element
 		GL_FALSE,          // take our values as-is, don't normalize
-		2*sizeof(float),  // stride between one position and the next in the arr
+		5*sizeof(float),  // stride between one position and the next in the arr
 		line_vertices  // pointer to first position in the C array
 	);
 	
-	//glVertexAttribPointer(
-	//	attribute_color, // attribute ID
-	//	3,                 // number of elements per vertex, here (r,g,b)
-	//	GL_FLOAT,          // the type of each element
-	//	GL_FALSE,          // take our values as-is, don't normalize
-	//	5*sizeof(float),  // stride between one position and the next
-	//	line_vertices+2    // pointer to first position index of a color in the C array
-	//);
-	glColor3f(0.4,0.8,0.1);
+	glVertexAttribPointer(
+		attribute_color, // attribute ID
+		3,                 // number of elements per vertex, here (r,g,b)
+		GL_FLOAT,          // the type of each element
+		GL_FALSE,          // take our values as-is, don't normalize
+		5*sizeof(float),  // stride between one position and the next
+		line_vertices+2    // pointer to first position index of a color in the C array
+	);
+	//glColor3f(0.6,0.2,0.1);
 	glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &m[0][0]);
 	glDrawArrays(GL_LINES,0,2);
-  glDisableVertexAttribArray(attribute_coord2d);
+	glDisableVertexAttribArray(attribute_coord2d);
+	glDisableVertexAttribArray(attribute_color);
 	return m;
 }
 
