@@ -64,7 +64,7 @@ void display() {
   glClear(GL_COLOR_BUFFER_BIT);
 
   /* put plant drawing code here */
-  drawPlant();
+  beginPlant();
   /* end drawing code */
 
   // Swap the screen (forces drawing, and used for animation)

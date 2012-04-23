@@ -6,14 +6,13 @@
 #include <math.h>
 #include <glew.h>
 #include <glut.h>
-#include <glm/glm.hpp>
 #include "shader_utils.h"
 #include "drawPlant.h"
 using namespace std;
 
 
-glm::mat3 drawStem(int level, glm::mat3 m);
-glm::mat3 drawLine(glm::mat3 m);
+//glm::mat3 drawStem(int level, glm::mat3 m);
+//glm::mat3 drawLine(glm::mat3 m);
 
 GLuint program;
 GLint attribute_coord2d = 0;
@@ -57,15 +56,15 @@ GLubyte stem_indicies[] = {
 };
 
 GLfloat line_vertices[] = {
-	0.0,0.3, 
-	0.5,0.5,
+	0.0,0.0, 
+	0.0,0.2
 };
 
 // Turn left by pi/6
-GLfloat TurnLeft[] = 
-  {cos(M_PI/6), -sin(M_PI/6), 0.0, 
-   sin(M_PI/6), cos(M_PI/6), 0.0,
-   0.0,  0.0, 1.0};
+//GLfloat TurnLeft[] = 
+//  {cos(M_PI/6), -sin(M_PI/6), 0.0, 
+//   sin(M_PI/6), cos(M_PI/6), 0.0,
+//   0.0,  0.0, 1.0};
 
 
 // Set up the shaders, compile and link them, get pointers to 
@@ -134,10 +133,10 @@ int init_resources()
 
 
 // Draw the leaf
-void drawPlant(void) {
+void drawLeaf(glm::mat3 t) {
 
   // Send the program to the GPU
-  glUseProgram(program);
+  //glUseProgram(program);
 
   // Now hook up input data to program.
 
@@ -168,12 +167,12 @@ void drawPlant(void) {
   
 
   // give the matrix a value
-  glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &current[0][0]);
+  glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &t[0][0]);
   //glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, TurnLeft);
 
   // Send the triangle vertices to the GPU  - actually draw! 
   glDrawElements(GL_TRIANGLES, 7*3, GL_UNSIGNED_BYTE, leaf_indicies);
-  
+ /* 
   glVertexAttribPointer(
     attribute_coord2d, // attribute ID
     2,                 // number of elements per vertex, here (x,y)
@@ -192,10 +191,8 @@ void drawPlant(void) {
     5*sizeof(float),  // stride between one position and the next
     stem_vertices+2    // pointer to first position index of a color in the C array
   );
-
-  cout << current[0][0] << endl;
-  cout << current[1][2] << endl;
-  current = drawStem(0, current);
+  */
+  //current = drawStem(1, current);
   /*glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &originalMatrix[0][0]);
   glDrawElements(GL_TRIANGLES, 2*3, GL_UNSIGNED_BYTE, stem_indicies);
 
@@ -209,18 +206,94 @@ void drawPlant(void) {
 
 }
 
+void drawPlant(int level, glm::mat3 t){
+  if(level == 0){
+    cout << "Draw leaf\n";
+    drawLeaf(t); 
+  }
+  else {
+    glm::mat3 temp;
+    cout << "Draw stem\n";
+    drawStem(level-1, t);
+    temp = t;
+    t = turnLeft(t,M_PI/10);
+    drawPlant(level-1, t);
+    t = temp;
+    t = turnRight(t, M_PI/10);
+    drawPlant(level-1, t);
+  }
+}
+
+void beginPlant(void){
+  glUseProgram(program);
+  //glEnableVertexAttribArray(attribute_coord2d);
+  //glEnableVertexAttribArray(attribute_color);
+  cout << "Begin drawing...\n"; 
+  drawPlant(2,current);
+  
+  //glDisableVertexAttribArray(attribute_coord2d);
+  //glDisableVertexAttribArray(attribute_color);
+  
+}
+
+glm::mat3 turnLeft(glm::mat3 t, float angle){
+  
+//GLfloat TurnLeft[] = 
+//  {cos(M_PI/6), -sin(M_PI/6), 0.0, 
+//   sin(M_PI/6), cos(M_PI/6), 0.0,
+//   0.0,  0.0, 1.0};
+  glm::mat3 rotM(cos(angle), sin(angle),0,
+                 -sin(angle), cos(angle), 0,
+                 0, 0, 1);
+  return t * rotM;
+
+}
+
+glm::mat3 turnRight(glm::mat3 t, float angle){
+  
+  glm::mat3 rotM(cos(-angle), sin(-angle),0,
+                 -sin(-angle), cos(-angle), 0,
+                 0, 0, 1);
+  return t * rotM;
+
+}
+
 glm::mat3 drawStem(int level, glm::mat3 m){
-	drawLine(m);
+   glm::mat3 scaleMatrix(1,0,0,
+                        0,0.8,0,
+                        0,0,1
+                       );
+   glm::mat3 translateM(1,0,0,
+                        0,1,0,
+                        0,-0.8,1);
+
+   glm::mat3 translateM2(1,0,0,
+                        0,1,0,
+                        0,0.2,1);
+
+
+  if(level == 0){
+    m = translateM * m;
+    drawLine(m);
+    //cout << "Draw a line\n";
+    m = translateM2 * m;
+  }
+  else {
+    m = drawStem(level-1, m);
+    drawStem(level-1,m);
+  }
+
 	return m;
 }
 
 glm::mat3 drawLine(glm::mat3 m){
+  glEnableVertexAttribArray(attribute_coord2d);
 	glVertexAttribPointer(
 		attribute_coord2d, // attribute ID
 		2,                 // number of elements per vertex, here (x,y)
 		GL_FLOAT,          // the type of each element
 		GL_FALSE,          // take our values as-is, don't normalize
-		2*sizeof(float),  // stride between one position and the next
+		2*sizeof(float),  // stride between one position and the next in the arr
 		line_vertices  // pointer to first position in the C array
 	);
 	
@@ -233,8 +306,9 @@ glm::mat3 drawLine(glm::mat3 m){
 	//	line_vertices+2    // pointer to first position index of a color in the C array
 	//);
 	glColor3f(0.4,0.8,0.1);
-	//glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &m[0][0]);
+	glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &m[0][0]);
 	glDrawArrays(GL_LINES,0,2);
+  glDisableVertexAttribArray(attribute_coord2d);
 	return m;
 }
 
