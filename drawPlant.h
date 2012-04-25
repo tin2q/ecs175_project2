@@ -9,3 +9,5 @@ glm::mat3 turnLeft(glm::mat3 t, float angle);
 glm::mat3 turnRight(glm::mat3 t, float angle);
 glm::mat3 drawStem(int level, glm::mat3 m);
 glm::mat3 drawLine(glm::mat3 m);
+float curveValue(float t, float a, float b, float c);
+void getCurve();

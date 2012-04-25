@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
+#include <vector>
 #include <math.h>
 #include <glew.h>
 #include <glut.h>
@@ -13,7 +14,6 @@ using namespace std;
 
 //glm::mat3 drawStem(int level, glm::mat3 m);
 //glm::mat3 drawLine(glm::mat3 m);
-
 GLuint program;
 GLint attribute_coord2d = 0;
 GLint attribute_color = 1;
@@ -55,7 +55,16 @@ GLubyte stem_indicies[] = {
 
 GLfloat line_vertices[] = {
 	0.0,0.0, 0.6,0.4,0.1,
-	0.0,0.2, 0.6,0.4,0.1
+	0.0,0.2, 0.6,0.4,0.1,
+  0.1,0.2, 0.6,0.4,0.1,
+  0.2,0.3, 0.6,0.4,0.1,
+  0.4,0.5, 0.6,0.4,0.1,
+  0.5,0.6, 0.6,0.4,0.1,
+  0.6,0.7, 0.6,0.4,0.1,
+  0.7,0.8, 0.6,0.4,0.1,
+  0.8,0.9, 0.6,0.4,0.1,
+  0.9,1.0, 0.6,0.4,0.1
+
 };
 
 // Turn left by pi/6
@@ -230,7 +239,7 @@ void beginPlant(void){
   glm::mat3 current(1,0,0, //0,0
 					0,1,0, //1,0
 					0,-0.9,1); //2,0
-  drawPlant(5,current);
+  drawPlant(1,current);
   
   //glDisableVertexAttribArray(attribute_coord2d);
   //glDisableVertexAttribArray(attribute_color);
@@ -287,6 +296,8 @@ glm::mat3 drawStem(int level, glm::mat3 m){
 glm::mat3 drawLine(glm::mat3 m){
   glEnableVertexAttribArray(attribute_coord2d);
   glEnableVertexAttribArray(attribute_color);
+  getCurve(); 
+  
 	glVertexAttribPointer(
 		attribute_coord2d, // attribute ID
 		2,                 // number of elements per vertex, here (x,y)
@@ -306,10 +317,34 @@ glm::mat3 drawLine(glm::mat3 m){
 	);
 	//glColor3f(0.6,0.2,0.1);
 	glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &m[0][0]);
-	glDrawArrays(GL_LINES,0,2);
+	glDrawArrays(GL_LINE_STRIP,0,10);
 	glDisableVertexAttribArray(attribute_coord2d);
 	glDisableVertexAttribArray(attribute_color);
 	return m;
+}
+
+void getCurve(){
+  float ax = 0.0, bx = 0.9, cx = 0.9;
+  float ay = 0.0, by = 0.0, cy = 0.9;
+  int i = 0;
+  for(float t = 0.0; t <= 1.0; t+=0.1){
+    float x = curveValue(t, ax, bx, cx);
+    float y = curveValue(t, ay, by, cy);
+    line_vertices[i] = x;
+    i++;
+    line_vertices[i] = y;
+    i += 4;
+    cout << "x y " << x << " " << y << endl;
+  }
+  for(i = 0; i < 10; i++){
+    cout << line_vertices[i] << endl;
+  }
+}
+
+float curveValue(float t, float a, float b, float c){
+  float val = 0;
+  val = ((1-t)*(1-t)*a) + (2*(1-t)*t*b) + ((t*t)*c);
+  return val;
 }
 
 void free_resources()
