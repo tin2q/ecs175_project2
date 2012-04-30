@@ -23,3 +23,4 @@ glm::mat3 drawLeavesRight(int level, glm::mat3 m);
 glm::mat3 drawBranch(glm::mat3 m);
 void drawWholeLeaf(glm::mat3 t);
 glm::mat3 shearing(glm::mat3 t, float x, float y);
+void getCurveBranch(float x[], float y[]);

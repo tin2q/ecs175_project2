@@ -64,6 +64,33 @@ GLubyte branch_indicies[] = {
   0, 2, 3
 };
 
+GLfloat curve_branch[] = {
+  0.0,-0.1,   0.2,0.2,0.0,
+  0.0,1.95,   0.2,0.4,0.0,
+  0.035,1.95,	0.2,0.4,0.0,
+  0.035,-0.1,  0.2,0.2,0.0,
+  0.0,-0.1,   0.2,0.2,0.0,
+  0.0,1.95,   0.2,0.4,0.0,
+  0.035,1.95,	0.2,0.4,0.0,
+  0.035,-0.1,  0.2,0.2,0.0,
+  0.0,-0.1,   0.2,0.2,0.0,
+  0.0,1.95,   0.2,0.4,0.0,
+  0.035,1.95,	0.2,0.4,0.0,
+  0.035,-0.1,  0.2,0.2,0.0,
+  0.0,-0.1,   0.2,0.2,0.0,
+  0.0,1.95,   0.2,0.4,0.0,
+  0.035,1.95,	0.2,0.4,0.0,
+  0.0,-0.1,   0.2,0.2,0.0,
+  0.0,1.95,   0.2,0.4,0.0,
+  0.035,1.95,	0.2,0.4,0.0,
+  0.035,-0.1,  0.2,0.2,0.0,
+  0.0,-0.1,   0.2,0.2,0.0,
+  0.0,1.95,   0.2,0.4,0.0,
+  0.035,1.95,	0.2,0.4,0.0,
+  0.035,-0.1,  0.2,0.2,0.0,
+  0.0,-0.1,   0.2,0.2,0.0,
+  0.035,1.95,	0.2,0.4,0.0
+};
 
 //GLfloat palm_leaf[] = {
 //  0.0,0.0,   0.5,0.9,0.3,
@@ -298,7 +325,7 @@ void drawPalm(int level, glm::mat3 t){
 	else {
 		//srand ( time(NULL) );
 		float angle = 8;//rand() % 40 + 1;
-		cout << "angle " << angle << endl;
+		//cout << "angle " << angle << endl;
 
 		//drawWholeLeaf(t);
 		glm::mat3 temp = t;
@@ -319,6 +346,7 @@ void drawWholeLeaf(glm::mat3 t){
 
 	t = forward(t,0.0,0.1);
 	drawBranch(t);
+  //t = forward(t,0.025,0.00);
 	drawLeavesLeft(25, t);	
 	t = scale(t, -1.0, 1);
 	t = forward(t, -0.03, 0);
@@ -331,10 +359,14 @@ glm::mat3 drawLeavesLeft(int level, glm::mat3 m){
 		m = scale(m,0.90,0.97);
 		drawPalmLeaf(m);
 	}
-	else if(level < 10){
+	else if(level < 11){
 		drawPalmLeaf(m);
 		m = scale(m,0.93,0.97);
 		m = forward(m,0.0,0.08);
+    //cout << "level " << level+1 << " " << (level+1)*5 << " " << curve_branch[(level+1)*5] << endl;
+    //cout << "level2 " << level << " " << (level)*5 << " " << curve_branch[(level)*5] << endl;
+    //m=forward(m,(curve_branch[(level)*5]-curve_branch[(level+1)*5]),
+    //            curve_branch[(level)*5+1]-curve_branch[(level+1)*5+1]);
 		drawLeavesLeft(level-1, m);
 	}
 	//else if(level >= 10 && level < 20){
@@ -350,6 +382,10 @@ glm::mat3 drawLeavesLeft(int level, glm::mat3 m){
 		m = scale(m,1.05,1);
 		//m = turnRight(m,M_PI/20);
 		m = forward(m,0.0,0.08);
+    //cout << "level " << level+1 << " " << (level+1)*5 << " " << curve_branch[(level+1)*5] << endl;
+    //cout << "level2 " << level << " " << (level)*5 << " " << curve_branch[(level)*5] << endl;
+    //m=forward(m,(curve_branch[(level)*5]-curve_branch[(level+1)*5]),
+    //            curve_branch[(level)*5+1]-curve_branch[(level+1)*5+1]);
 		drawLeavesLeft(level-1, m);
 	}
 	return m;
@@ -358,7 +394,9 @@ glm::mat3 drawLeavesLeft(int level, glm::mat3 m){
 glm::mat3 drawBranch(glm::mat3 m){
 	glEnableVertexAttribArray(attribute_coord2d);
 	glEnableVertexAttribArray(attribute_color);
-
+  //float xVal[] = {0.0,0.5,0.035};
+  //float yVal[] = {-0.1,0.5,1.95};
+  //getCurveBranch(xVal,yVal);
 	// Describe the position attribute and where the data is in the array
 	glVertexAttribPointer(
 		attribute_coord2d, // attribute ID
@@ -385,7 +423,8 @@ glm::mat3 drawBranch(glm::mat3 m){
 
 	// Send the triangle vertices to the GPU  - actually draw! 
 	glDrawElements(GL_TRIANGLES, 3*3, GL_UNSIGNED_BYTE, branch_indicies);
-  
+  //glLineWidth((GLfloat)3);
+  //glDrawArrays(GL_LINE_STRIP, 0, 2);
 	// Done with the attributes
 	glDisableVertexAttribArray(attribute_coord2d);
 	glDisableVertexAttribArray(attribute_color);
@@ -397,7 +436,7 @@ glm::mat3 drawLeavesRight(int level, glm::mat3 m){
 		m = scale(m,0.90,0.97);
 		drawPalmLeaf(m);
 	}
-	else if(level < 10){
+	else if(level < 11){
 		drawPalmLeaf(m);
 		m = scale(m,0.93,0.97);
 		m = forward(m,0.0,0.08);
@@ -713,6 +752,22 @@ void getCurve(float x[], float y[]){
   //}
 }
 
+void getCurveBranch(float x[], float y[]){
+  float ax = x[0], bx = x[1], cx = x[2];
+  float ay = y[0], by = y[1], cy = y[2];
+  int i = 0;
+  for(int t = 25; t >= 0; t--){
+    float x = curveValue((float)t/25, ax, bx, cx);
+    float y = curveValue((float)t/25, ay, by, cy);
+    curve_branch[i] = x;
+    cout << "i x " << i << " " << x << endl;
+    i++;
+    curve_branch[i] = y;
+    i += 4;
+    
+  }
+  
+}
 
 float curveValue(float t, float a, float b, float c){
   float val = 0;
