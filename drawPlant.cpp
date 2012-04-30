@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
+#include <time.h>
 #include <glew.h>
 #include <glut.h>
 #include "shader_utils.h"
@@ -40,6 +41,35 @@ GLubyte leaf_indicies[] = {
   0, 5, 6,
   0, 6, 7
 };
+
+GLfloat palm_leaf[] = {
+  0.0,0.0,   0.5,0.9,0.3,
+  -0.2,0.05,	 0.1,0.3,0.1,
+  0.0,0.05,   0.1,0.8,0.1
+};
+//GLfloat palm_leaf[] = {
+//  0.0,0.0,   0.5,0.9,0.3,
+//  -0.8,0.05,	 0.1,0.3,0.1,
+//  0.0,0.05,   0.1,0.8,0.1
+//};
+
+GLfloat branch[] = {
+  0.0,-0.1,   0.2,0.2,0.0,
+  0.0,1.95,   0.2,0.4,0.0,
+  0.035,1.95,	0.2,0.4,0.0,
+  0.035,-0.1,  0.2,0.2,0.0
+};
+GLubyte branch_indicies[] = {
+  0, 1, 2,
+  0, 2, 3
+};
+
+
+//GLfloat palm_leaf[] = {
+//  0.0,0.0,   0.5,0.9,0.3,
+//  0.025,0.8,	 0.1,0.3,0.1,
+//  0.025,0.0,   0.1,0.8,0.1,
+//};
 
 GLfloat stem_vertices[] = {
   0.0,0.0, 0.6,0.4,0.1,
@@ -101,10 +131,10 @@ GLfloat line_vertices[] = {
 GLfloat curve_vertices[] = {
   0.0,0.0, 0.6,0.4,0.1,
   0.0,0.2, 0.5,0.2,0.1,
-  0.1,0.2, 0.4,0.1,0.1,
+  0.1,0.2, 0.6,0.4,0.1,
   0.2,0.3, 0.6,0.4,0.1,
   0.4,0.5, 0.5,0.2,0.1,
-  0.5,0.6, 0.4,0.4,0.1,
+  0.5,0.6, 0.6,0.4,0.1,
   0.6,0.7, 0.6,0.4,0.1,
   0.7,0.8, 0.6,0.4,0.1,
   0.8,0.9, 0.5,0.2,0.1,
@@ -261,10 +291,171 @@ void drawPlant(int level, glm::mat3 t){
 }
 
 void drawPalm(int level, glm::mat3 t){
-	for(int i = 0; i < level; i++){
-		drawPalmStem(t);
-		t = forward(t,0.001,0.3);
+	if(level == 0){
+		drawWholeLeaf(t);
+		//t = forward(t,0.001,0.3);
 	}
+	else {
+		//srand ( time(NULL) );
+		float angle = 8;//rand() % 40 + 1;
+		cout << "angle " << angle << endl;
+
+		//drawWholeLeaf(t);
+		glm::mat3 temp = t;
+		//float s = (rand() % 100 + 1) / 100.0;
+		//cout << "shear " << s << endl;
+		//t = shearing(t,s,s);
+
+		t = turnLeft(t,M_PI/angle);
+		drawPalm(level-1, t);
+		t = temp;
+		//angle = rand() % 40 + 1;
+		t = turnRight(t,M_PI/angle);
+		drawPalm(level-1, t);
+	}
+}
+
+void drawWholeLeaf(glm::mat3 t){
+
+	t = forward(t,0.0,0.1);
+	drawBranch(t);
+	drawLeavesLeft(25, t);	
+	t = scale(t, -1.0, 1);
+	t = forward(t, -0.03, 0);
+	drawLeavesRight(25, t);
+
+}
+
+glm::mat3 drawLeavesLeft(int level, glm::mat3 m){
+	if(level == 0){
+		m = scale(m,0.90,0.97);
+		drawPalmLeaf(m);
+	}
+	else if(level < 10){
+		drawPalmLeaf(m);
+		m = scale(m,0.93,0.97);
+		m = forward(m,0.0,0.08);
+		drawLeavesLeft(level-1, m);
+	}
+	//else if(level >= 10 && level < 20){
+	//	drawPalmLeaf(m);
+	//	m = scale(m,0.98,1);
+	//	m = forward(m,0.0,0.08);
+	//	drawLeavesLeft(level-1, m);
+	//}
+	else {
+		drawPalmLeaf(m);
+		//drawPalmLeaf(m);
+
+		m = scale(m,1.05,1);
+		//m = turnRight(m,M_PI/20);
+		m = forward(m,0.0,0.08);
+		drawLeavesLeft(level-1, m);
+	}
+	return m;
+}
+
+glm::mat3 drawBranch(glm::mat3 m){
+	glEnableVertexAttribArray(attribute_coord2d);
+	glEnableVertexAttribArray(attribute_color);
+
+	// Describe the position attribute and where the data is in the array
+	glVertexAttribPointer(
+		attribute_coord2d, // attribute ID
+		2,                 // number of elements per vertex, here (x,y)
+		GL_FLOAT,          // the type of each element
+		GL_FALSE,          // take our values as-is, don't normalize
+		5*sizeof(float),  // stride between one position and the next
+		branch  // pointer to first position in the C array
+	);
+
+	// Describe the position attribute and where the data is in the array
+	glVertexAttribPointer(
+		attribute_color, // attribute ID
+		3,                 // number of elements per vertex, here (r,g,b)
+		GL_FLOAT,          // the type of each element
+		GL_FALSE,          // take our values as-is, don't normalize
+		5*sizeof(float),  // stride between one position and the next
+		branch+2    // pointer to first position index of a color in the C array
+	);
+  
+	// give the matrix a value
+	glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &m[0][0]);
+	//glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, TurnLeft);
+
+	// Send the triangle vertices to the GPU  - actually draw! 
+	glDrawElements(GL_TRIANGLES, 3*3, GL_UNSIGNED_BYTE, branch_indicies);
+  
+	// Done with the attributes
+	glDisableVertexAttribArray(attribute_coord2d);
+	glDisableVertexAttribArray(attribute_color);
+	return m;
+}
+
+glm::mat3 drawLeavesRight(int level, glm::mat3 m){
+	if(level == 0){
+		m = scale(m,0.90,0.97);
+		drawPalmLeaf(m);
+	}
+	else if(level < 10){
+		drawPalmLeaf(m);
+		m = scale(m,0.93,0.97);
+		m = forward(m,0.0,0.08);
+		drawLeavesRight(level-1, m);
+	}
+	//else if(level >= 10 && level < 20){
+	//	drawPalmLeaf(m);
+	//	m = scale(m,0.98,1);
+	//	m = forward(m,0.0,0.08);
+	//	drawLeavesRight(level-1, m);
+	//}
+	else {
+		drawPalmLeaf(m);
+		//m = forward(m,-0.015,-0.05);
+		//m = scale(m,1.1,0.95);
+		//m = turnRight(m,M_PI/40);
+		//m = scale(m,-1,0);
+		m = scale(m,1.05,1);
+		m = forward(m,0.0,0.08);
+		drawLeavesRight(level-1, m);
+	}
+	return m;
+}
+
+void drawPalmLeaf(glm::mat3 m){
+	glEnableVertexAttribArray(attribute_coord2d);
+  glEnableVertexAttribArray(attribute_color);
+
+  // Describe the position attribute and where the data is in the array
+  glVertexAttribPointer(
+    attribute_coord2d, // attribute ID
+    2,                 // number of elements per vertex, here (x,y)
+    GL_FLOAT,          // the type of each element
+    GL_FALSE,          // take our values as-is, don't normalize
+    5*sizeof(float),  // stride between one position and the next
+    palm_leaf  // pointer to first position in the C array
+  );
+
+  // Describe the position attribute and where the data is in the array
+  glVertexAttribPointer(
+    attribute_color, // attribute ID
+    3,                 // number of elements per vertex, here (r,g,b)
+    GL_FLOAT,          // the type of each element
+    GL_FALSE,          // take our values as-is, don't normalize
+    5*sizeof(float),  // stride between one position and the next
+    palm_leaf+2    // pointer to first position index of a color in the C array
+  );
+  
+  // give the matrix a value
+  glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &m[0][0]);
+  //glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, TurnLeft);
+
+  // Send the triangle vertices to the GPU  - actually draw! 
+  glDrawArrays(GL_TRIANGLES,0,3);
+  
+  // Done with the attributes
+  glDisableVertexAttribArray(attribute_coord2d);
+  glDisableVertexAttribArray(attribute_color);
 }
 
 void beginPlant(void){
@@ -272,11 +463,22 @@ void beginPlant(void){
   //glEnableVertexAttribArray(attribute_coord2d);
   //glEnableVertexAttribArray(attribute_color);
   cout << "Begin drawing...\n"; 
-  glm::mat3 current(0.4,0,0, //0,0
-					0,0.5,0, //1,0
-					0,0.-0.9,1); //2,0
+  glm::mat3 current(0.25,0,0, //0,0
+					0,0.3,0, //1,0
+					0,-0.9,1); //2,0
   //drawPlant(1,current);
-  drawPalm(5, current);
+  int i = 0;
+	for(i = 0; i < 5; i++){
+		drawPalmStem(current);
+		current = forward(current,0.014,0.3);
+	}
+	for(i; i < 10; i++){
+		drawPalmStem(current);
+		current = forward(current,-0.014,0.3);
+	}
+	current = scale(current,1.3,1);
+	current = forward(current, 0.05, 0.0);
+	drawPalm(5, current);
   //glDisableVertexAttribArray(attribute_coord2d);
   //glDisableVertexAttribArray(attribute_color);
   
@@ -292,6 +494,45 @@ glm::mat3 turnLeft(glm::mat3 t, float angle){
                  -sin(angle), cos(angle), 0,
                  0, 0, 1);
   return t * rotM;
+
+}
+
+glm::mat3 scale(glm::mat3 t, float x, float y){
+  
+//GLfloat TurnLeft[] = 
+//  {cos(M_PI/6), -sin(M_PI/6), 0.0, 
+//   sin(M_PI/6), cos(M_PI/6), 0.0,
+//   0.0,  0.0, 1.0};
+  glm::mat3 scaleM(x, 0,0,
+					0, y, 0,
+					0, 0, 1);
+  return t * scaleM;
+
+}
+
+glm::mat3 shearing(glm::mat3 t, float x, float y){
+  
+//GLfloat TurnLeft[] = 
+//  {cos(M_PI/6), -sin(M_PI/6), 0.0, 
+//   sin(M_PI/6), cos(M_PI/6), 0.0,
+//   0.0,  0.0, 1.0};
+  glm::mat3 scaleM(1, y,0,
+					x, 1, 0,
+					0, 0, 1);
+  return t * scaleM;
+
+}
+
+glm::mat3 turnLeftOb(glm::mat3 t, float angle){
+  
+//GLfloat TurnLeft[] = 
+//  {cos(M_PI/6), -sin(M_PI/6), 0.0, 
+//   sin(M_PI/6), cos(M_PI/6), 0.0,
+//   0.0,  0.0, 1.0};
+  glm::mat3 rotM(cos(angle), sin(angle),0,
+                 -sin(angle), cos(angle), 0,
+                 0, 0, 1);
+  return rotM * t;
 
 }
 
@@ -435,11 +676,11 @@ glm::mat3 drawPalmStem(glm::mat3 m){
 	////glColor3f(0.6,0.2,0.1);
 	glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &m[0][0]);
 	glDrawArrays(GL_TRIANGLE_FAN,0,44);  
-	int r = 0;
-	for(i = 0; i < 44; i++){
-	  cout << "x y " << stem_vertices[r] << " " << stem_vertices[++r] << endl;
-	  r+=4;
-	}
+	//int r = 0;
+	//for(i = 0; i < 44; i++){
+	//  cout << "x y " << stem_vertices[r] << " " << stem_vertices[++r] << endl;
+	//  r+=4;
+	//}
 	
 
 	//float xver2[3] = { 0.0, 0.05, 0.0  };
