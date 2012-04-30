@@ -42,10 +42,50 @@ GLubyte leaf_indicies[] = {
 };
 
 GLfloat stem_vertices[] = {
-  0.0,0.0,  0.5,0.5,0.3,
-  0.0,0.5,  0.5,0.6,0.3,
-  0.5,0.5,  0.4,0.6,0.3,
-  0.5,0.0,  0.3,0.4,0.3
+  0.0,0.0, 0.6,0.4,0.1,
+  0.0,0.2, 0.6,0.4,0.1,
+  0.1,0.2, 0.6,0.4,0.1,
+  0.2,0.3, 0.6,0.4,0.1,
+  0.4,0.5, 0.6,0.4,0.1,
+  0.5,0.6, 0.6,0.4,0.1,
+  0.6,0.7, 0.6,0.4,0.1,
+  0.7,0.8, 0.6,0.4,0.1,
+  0.8,0.9, 0.6,0.4,0.1,
+  0.9,1.0, 0.6,0.4,0.1,
+  0.9,1.0, 0.6,0.4,0.1,
+    0.0,0.0, 0.6,0.4,0.1,
+  0.0,0.2, 0.6,0.4,0.1,
+  0.1,0.2, 0.6,0.4,0.1,
+  0.2,0.3, 0.6,0.4,0.1,
+  0.4,0.5, 0.6,0.4,0.1,
+  0.5,0.6, 0.6,0.4,0.1,
+  0.6,0.7, 0.6,0.4,0.1,
+  0.7,0.8, 0.6,0.4,0.1,
+  0.8,0.9, 0.6,0.4,0.1,
+  0.9,1.0, 0.6,0.4,0.1,
+  0.9,1.0, 0.6,0.4,0.1,
+    0.0,0.0, 0.6,0.4,0.1,
+  0.0,0.2, 0.6,0.4,0.1,
+  0.1,0.2, 0.6,0.4,0.1,
+  0.2,0.3, 0.6,0.4,0.1,
+  0.4,0.5, 0.6,0.4,0.1,
+  0.5,0.6, 0.6,0.4,0.1,
+  0.6,0.7, 0.6,0.4,0.1,
+  0.7,0.8, 0.6,0.4,0.1,
+  0.8,0.9, 0.6,0.4,0.1,
+  0.9,1.0, 0.6,0.4,0.1,
+  0.9,1.0, 0.6,0.4,0.1,
+    0.0,0.0, 0.6,0.4,0.1,
+  0.0,0.2, 0.6,0.4,0.1,
+  0.1,0.2, 0.6,0.4,0.1,
+  0.2,0.3, 0.6,0.4,0.1,
+  0.4,0.5, 0.6,0.4,0.1,
+  0.5,0.6, 0.6,0.4,0.1,
+  0.6,0.7, 0.6,0.4,0.1,
+  0.7,0.8, 0.6,0.4,0.1,
+  0.8,0.9, 0.6,0.4,0.1,
+  0.9,1.0, 0.6,0.4,0.1,
+  0.9,1.0, 0.6,0.4,0.1
 };
 
 GLubyte stem_indicies[] = {
@@ -56,15 +96,32 @@ GLubyte stem_indicies[] = {
 GLfloat line_vertices[] = {
 	0.0,0.0, 0.6,0.4,0.1,
 	0.0,0.2, 0.6,0.4,0.1,
-  0.1,0.2, 0.6,0.4,0.1,
+};
+
+GLfloat curve_vertices[] = {
+  0.0,0.0, 0.6,0.4,0.1,
+  0.0,0.2, 0.5,0.2,0.1,
+  0.1,0.2, 0.4,0.1,0.1,
   0.2,0.3, 0.6,0.4,0.1,
-  0.4,0.5, 0.6,0.4,0.1,
-  0.5,0.6, 0.6,0.4,0.1,
+  0.4,0.5, 0.5,0.2,0.1,
+  0.5,0.6, 0.4,0.4,0.1,
   0.6,0.7, 0.6,0.4,0.1,
   0.7,0.8, 0.6,0.4,0.1,
-  0.8,0.9, 0.6,0.4,0.1,
+  0.8,0.9, 0.5,0.2,0.1,
+  0.9,1.0, 0.6,0.4,0.1,
   0.9,1.0, 0.6,0.4,0.1
+};
 
+GLubyte curve_indicies[] = {
+  0, 1, 2, 
+  0, 2, 3,
+  0, 3, 4, 
+  0, 4, 5,
+  0, 5, 6,
+  0, 6, 7,
+  0, 7, 8,
+  0, 8, 9,
+  0, 9, 10
 };
 
 // Turn left by pi/6
@@ -172,40 +229,12 @@ void drawLeaf(glm::mat3 t) {
     leaf_vertices+2    // pointer to first position index of a color in the C array
   );
   
-
   // give the matrix a value
   glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &t[0][0]);
   //glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, TurnLeft);
 
   // Send the triangle vertices to the GPU  - actually draw! 
   glDrawElements(GL_TRIANGLES, 7*3, GL_UNSIGNED_BYTE, leaf_indicies);
- /* 
-  glVertexAttribPointer(
-    attribute_coord2d, // attribute ID
-    2,                 // number of elements per vertex, here (x,y)
-    GL_FLOAT,          // the type of each element
-    GL_FALSE,          // take our values as-is, don't normalize
-    5*sizeof(float),  // stride between one position and the next
-    stem_vertices  // pointer to first position in the C array
-  );
-
-  // Describe the position attribute and where the data is in the array
-  glVertexAttribPointer(
-    attribute_color, // attribute ID
-    3,                 // number of elements per vertex, here (r,g,b)
-    GL_FLOAT,          // the type of each element
-    GL_FALSE,          // take our values as-is, don't normalize
-    5*sizeof(float),  // stride between one position and the next
-    stem_vertices+2    // pointer to first position index of a color in the C array
-  );
-  */
-  //current = drawStem(1, current);
-  /*glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &originalMatrix[0][0]);
-  glDrawElements(GL_TRIANGLES, 2*3, GL_UNSIGNED_BYTE, stem_indicies);
-
-  glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, TurnLeft);
-  glDrawElements(GL_TRIANGLES, 2*3, GL_UNSIGNED_BYTE, stem_indicies);*/
-
   
   // Done with the attributes
   glDisableVertexAttribArray(attribute_coord2d);
@@ -231,16 +260,23 @@ void drawPlant(int level, glm::mat3 t){
   }
 }
 
+void drawPalm(int level, glm::mat3 t){
+	for(int i = 0; i < level; i++){
+		drawPalmStem(t);
+		t = forward(t,0.001,0.3);
+	}
+}
+
 void beginPlant(void){
   glUseProgram(program);
   //glEnableVertexAttribArray(attribute_coord2d);
   //glEnableVertexAttribArray(attribute_color);
   cout << "Begin drawing...\n"; 
-  glm::mat3 current(1,0,0, //0,0
-					0,1,0, //1,0
-					0,-0.9,1); //2,0
-  drawPlant(1,current);
-  
+  glm::mat3 current(0.4,0,0, //0,0
+					0,0.5,0, //1,0
+					0,0.-0.9,1); //2,0
+  //drawPlant(1,current);
+  drawPalm(5, current);
   //glDisableVertexAttribArray(attribute_coord2d);
   //glDisableVertexAttribArray(attribute_color);
   
@@ -264,6 +300,15 @@ glm::mat3 turnRight(glm::mat3 t, float angle){
   glm::mat3 rotM(cos(-angle), sin(-angle),0,
                  -sin(-angle), cos(-angle), 0,
                  0, 0, 1);
+  return t * rotM;
+
+}
+
+glm::mat3 forward(glm::mat3 t, float x, float y){
+  
+  glm::mat3 rotM(1, 0, 0,
+                 0, 1, 0,
+                 x, y, 1);
   return t * rotM;
 
 }
@@ -296,7 +341,6 @@ glm::mat3 drawStem(int level, glm::mat3 m){
 glm::mat3 drawLine(glm::mat3 m){
   glEnableVertexAttribArray(attribute_coord2d);
   glEnableVertexAttribArray(attribute_color);
-  getCurve(); 
   
 	glVertexAttribPointer(
 		attribute_coord2d, // attribute ID
@@ -317,29 +361,117 @@ glm::mat3 drawLine(glm::mat3 m){
 	);
 	//glColor3f(0.6,0.2,0.1);
 	glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &m[0][0]);
-	glDrawArrays(GL_LINE_STRIP,0,10);
+	glDrawArrays(GL_LINES,0,2);
 	glDisableVertexAttribArray(attribute_coord2d);
 	glDisableVertexAttribArray(attribute_color);
 	return m;
 }
 
-void getCurve(){
-  float ax = 0.0, bx = 0.9, cx = 0.9;
-  float ay = 0.0, by = 0.0, cy = 0.9;
-  int i = 0;
-  for(float t = 0.0; t <= 1.0; t+=0.1){
-    float x = curveValue(t, ax, bx, cx);
-    float y = curveValue(t, ay, by, cy);
-    line_vertices[i] = x;
-    i++;
-    line_vertices[i] = y;
-    i += 4;
-    cout << "x y " << x << " " << y << endl;
-  }
-  for(i = 0; i < 10; i++){
-    cout << line_vertices[i] << endl;
-  }
+glm::mat3 drawPalmStem(glm::mat3 m){
+
+  glEnableVertexAttribArray(attribute_coord2d);
+  glEnableVertexAttribArray(attribute_color);
+
+	glVertexAttribPointer(
+		attribute_coord2d, // attribute ID
+		2,                 // number of elements per vertex, here (x,y)
+		GL_FLOAT,          // the type of each element
+		GL_FALSE,          // take our values as-is, don't normalize
+		5*sizeof(float),  // stride between one position and the next in the arr
+		stem_vertices  // pointer to first position in the C array
+	);
+	
+	glVertexAttribPointer(
+		attribute_color, // attribute ID
+		3,                 // number of elements per vertex, here (r,g,b)
+		GL_FLOAT,          // the type of each element
+		GL_FALSE,          // take our values as-is, don't normalize
+		5*sizeof(float),  // stride between one position and the next
+		stem_vertices+2    // pointer to first position index of a color in the C array
+	);
+	
+
+	float xver[3] = { 0.0, -0.05, 0.0  };
+	float yver[3] = { 0.0, 0.15, 0.3 };
+	getCurve(xver, yver);
+	int i = 0, j = 0;
+	for(i = 0; i < 55; i++){
+		stem_vertices[j] =  curve_vertices[i];
+		j++;
+	}
+	//glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &m[0][0]);
+	//glDrawElements(GL_TRIANGLES, 10*3, GL_UNSIGNED_BYTE, curve_indicies);
+	
+	float xver2[3] = { 0.2, 0.25, 0.2  };
+	float yver2[3] = { 0.0, 0.15, 0.3 };
+	getCurve(xver2, yver2);
+	for(i = 0; i < 55; i++){
+		stem_vertices[j] =  curve_vertices[i];
+		j++;
+	}
+	//glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &m[0][0]);
+	//glDrawElements(GL_TRIANGLES, 10*3, GL_UNSIGNED_BYTE, curve_indicies);
+
+	float xver3[3] = { 0.0, 0.1, 0.2  };
+	float yver3[3] = { 0.0, -0.025, 0.0 };
+	getCurve(xver3, yver3);
+	for(i = 0; i < 55; i++){
+		stem_vertices[j] =  curve_vertices[i];
+		j++;
+	}
+	//glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &m[0][0]);
+	//glDrawElements(GL_TRIANGLES, 10*3, GL_UNSIGNED_BYTE, curve_indicies);
+
+	float xver4[3] = { 0.0, 0.1, 0.2  };
+	float yver4[3] = { 0.3, 0.275, 0.3 };
+	getCurve(xver4, yver4);
+	for(i = 0; i < 55; i++){
+		stem_vertices[j] =  curve_vertices[i];
+		j++;
+	}
+//	glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &m[0][0]);
+//	glDrawElements(GL_TRIANGLES, 10*3, GL_UNSIGNED_BYTE, curve_indicies);
+	
+	////glColor3f(0.6,0.2,0.1);
+	glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &m[0][0]);
+	glDrawArrays(GL_TRIANGLE_FAN,0,44);  
+	int r = 0;
+	for(i = 0; i < 44; i++){
+	  cout << "x y " << stem_vertices[r] << " " << stem_vertices[++r] << endl;
+	  r+=4;
+	}
+	
+
+	//float xver2[3] = { 0.0, 0.05, 0.0  };
+	//float yver2[3] = { 0.0, 0.15, 0.3 };
+	//getCurve(xver2, yver2);
+	//glm::mat3 toTheRight = forward(m, 0.2, 0);
+	//glUniformMatrix3fv(uniform_matrix, 1, GL_FALSE, &toTheRight[0][0]);
+	//glDrawElements(GL_TRIANGLES, 9*3, GL_UNSIGNED_BYTE, curve_indicies);
+
+	glDisableVertexAttribArray(attribute_coord2d);
+	glDisableVertexAttribArray(attribute_color);
+	return m;
 }
+
+void getCurve(float x[], float y[]){
+  float ax = x[0], bx = x[1], cx = x[2];
+  float ay = y[0], by = y[1], cy = y[2];
+  int i = 0;
+  for(int t = 0; t <= 10; t++){
+    float x = curveValue((float)t/10, ax, bx, cx);
+    float y = curveValue((float)t/10, ay, by, cy);
+    curve_vertices[i] = x;
+    i++;
+    curve_vertices[i] = y;
+    i += 4;
+    //cout << "x y " << x << " " << y << endl;
+  }
+  //for(i = 0; i < 55; i+=5){
+  //  cout << curve_vertices[i] << endl;
+  //}
+}
+
 
 float curveValue(float t, float a, float b, float c){
   float val = 0;
